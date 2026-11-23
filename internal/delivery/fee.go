@@ -12,6 +12,17 @@ var deliveryFees = map[string]int{
 	"Mexico":    4500,
 	"CMC":       6000,
 	"Arat Kilo": 4000,
+	"Kazanchis": 3500,
+	"Megenagna": 4500,
+}
+
+// ServedAreas returns the supported delivery areas.
+func ServedAreas() []string {
+	areas := make([]string, 0, len(deliveryFees))
+	for area := range deliveryFees {
+		areas = append(areas, area)
+	}
+	return areas
 }
 
 // FeeByArea returns the delivery fee for an area.

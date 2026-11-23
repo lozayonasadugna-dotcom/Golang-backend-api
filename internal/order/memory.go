@@ -77,6 +77,42 @@ func (s *MemoryStore) All() ([]Order, error) {
 	return orders, nil
 }
 
+// ByID returns a copy of the order with the requested ID.
+func (s *MemoryStore) ByID(id string) (Order, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	o, exists := s.orders[id]
+	if !exists {
+		return Order{}, ErrNotFound
+	}
+	o.Items = append([]menu.Dish(nil), o.Items...)
+	return o, nil
+}
+
+// UpdateStatus advances an order by one valid workflow step.
+func (s *MemoryStore) UpdateStatus(id string, status Status) (Order, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	o, exists := s.orders[id]
+	if !exists {
+		return Order{}, ErrNotFound
+	}
+	current, err := ParseStatus(o.Status)
+	if err != nil {
+		return Order{}, fmt.Errorf("stored order has invalid status: %w", err)
+	}
+	if !current.CanTransitionTo(status) {
+		return Order{}, fmt.Errorf("cannot transition from %s to %s: %w", current, status, ErrIllegalTransition)
+	}
+
+	o.Status = status.String()
+	s.orders[id] = o
+	o.Items = append([]menu.Dish(nil), o.Items...)
+	return o, nil
+}
+
 // Cancel deletes an order using its ID.
 func (s *MemoryStore) Cancel(id string) error {
 	s.mu.Lock()

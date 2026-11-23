@@ -67,3 +67,9 @@ type OrderStore interface {
 	All() ([]Order, error)
 	Cancel(id string) error
 }
+
+// OrderLifecycleStore supports reading and advancing an individual order.
+type OrderLifecycleStore interface {
+	ByID(id string) (Order, error)
+	UpdateStatus(id string, status Status) (Order, error)
+}

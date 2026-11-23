@@ -17,5 +17,20 @@ type DishReader interface {
 	ByID(id string) (Dish, error)
 }
 
+// Query describes optional collection filters and sorting.
+type Query struct {
+	Fasting *bool
+	Sort    string
+}
+
+// SortFields lists the supported menu sort expressions.
+var SortFields = []string{"name", "-name", "price", "-price"}
+
+// PageReader exposes storage-level menu pagination and collection caching.
+type PageReader interface {
+	Page(q Query, page, limit int) ([]Dish, int, error)
+	ETag(q Query, page, limit int) string
+}
+
 // ErrNotFound is returned when a dish does not exist.
 var ErrNotFound = errors.New("dish not found")

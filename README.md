@@ -32,7 +32,8 @@ addis-eats-api/
 ├── internal/
 │   ├── delivery/
 │   ├── menu/
-│   └── order/
+│   ├── order/
+│   └── validator/
 ├── go.mod
 └── README.md
 ```
@@ -63,6 +64,30 @@ http://localhost:8080
 | POST | `/orders` | Create an order |
 | GET | `/orders` | View all orders |
 | DELETE | `/orders/{id}` | Cancel an order |
+
+The versioned API aliases are also available: `GET /v1/health`, `GET /v1/dishes`,
+`GET /v1/dishes/{id}`, `GET /v1/orders`, `POST /v1/orders`,
+`GET /v1/orders/{id}`, and `PATCH /v1/orders/{id}`. Existing routes remain supported.
+
+### Menu pagination and filtering
+
+`GET /menu` (or `GET /v1/dishes`) accepts `page`, `limit`, `fasting`, and `sort`
+query parameters. For example, `/v1/dishes?page=1&limit=5&fasting=true&sort=-price`
+returns a page of fasting dishes sorted by price, highest first. Limits are capped
+at 100. The response includes pagination metadata, and the menu supports ETags and
+`If-None-Match` conditional requests.
+
+### Order validation and status
+
+Order creation validates the delivery area, TeleBirr mobile number, dish IDs,
+duplicate dishes, and a maximum of 50 dishes. Ethiopian numbers using the `+251`
+prefix and spaces or hyphens are normalized to the local `09...` or `07...` format.
+Invalid fields return HTTP 422 with a field-error map.
+
+Orders start with status `placed`. Update them one step at a time with
+`PATCH /v1/orders/{id}` and a JSON body such as `{"status":"accepted"}`. The
+supported progression is `placed` -> `accepted` -> `cooking` -> `on_the_way` ->
+`delivered`; skipped or backward transitions return HTTP 409.
 
 ## Running Tests
 
