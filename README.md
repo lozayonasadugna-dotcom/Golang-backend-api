@@ -54,6 +54,18 @@ The API will run at:
 http://localhost:8080
 ```
 
+The API allows browser requests from `http://localhost:3000` by default. Set
+`CORS_ORIGINS` to a comma-separated list to allow other origins, for example:
+
+```powershell
+$env:CORS_ORIGINS = "http://localhost:3000,https://example.com"
+go run ./cmd/api
+```
+
+Responses include an `X-Request-Id` header. You can provide this header on a
+request to use your own correlation ID; requests are logged with their ID,
+method, path, status, and duration.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |

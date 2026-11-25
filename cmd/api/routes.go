@@ -2,6 +2,15 @@ package main
 
 import "net/http"
 
+type middleware func(http.Handler) http.Handler
+
+func chain(h http.Handler, m ...middleware) http.Handler {
+	for i := len(m) - 1; i >= 0; i-- {
+		h = m[i](h)
+	}
+	return h
+}
+
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
@@ -25,7 +34,14 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("PATCH /v1/orders/{id}", app.patchOrder)
 	mux.HandleFunc("/", app.notFoundRoute)
 
-	return mux
+	return chain(
+		mux,
+		app.recoverPanic,
+		app.requestID,
+		app.logRequest,
+		app.secureHeaders,
+		app.enableCORS,
+	)
 }
 
 func (app *application) notFoundRoute(w http.ResponseWriter, r *http.Request) {

@@ -30,9 +30,7 @@ func (in *createOrderRequest) Normalise() {
 
 	phone := strings.NewReplacer(" ", "", "-", "").Replace(in.Phone)
 	phone = strings.TrimPrefix(phone, "+251")
-	if strings.HasPrefix(phone, "251") {
-		phone = strings.TrimPrefix(phone, "251")
-	}
+	phone = strings.TrimPrefix(phone, "251")
 	if len(phone) == 9 && !strings.HasPrefix(phone, "0") {
 		phone = "0" + phone
 	}
