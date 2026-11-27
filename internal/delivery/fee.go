@@ -5,7 +5,7 @@ import "errors"
 var ErrUnknownArea = errors.New("unknown delivery area")
 
 // Sample delivery fees in santim.
-// Replace these with the rates from your previous lesson.
+
 var deliveryFees = map[string]int{
 	"Bole":      5000,
 	"Piassa":    4000,
